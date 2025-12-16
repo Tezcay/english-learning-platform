@@ -62,13 +62,15 @@ function extractVideoId(url: string): string | null {
   return null
 }
 
-// Translate text with retry logic
+// Translate text with retry logic and exponential backoff
 async function translateText(text: string, retries = 3): Promise<string> {
   for (let i = 0; i < retries; i++) {
     try {
-      // Add delay to avoid rate limiting
+      // Exponential backoff: 1s, 3s, 9s
       if (i > 0) {
-        await new Promise(resolve => setTimeout(resolve, 1000 * i))
+        const delay = 1000 * Math.pow(3, i)
+        console.log(`Retry ${i}, waiting ${delay}ms before retry...`)
+        await new Promise(resolve => setTimeout(resolve, delay))
       }
       
       const result = await translate(text, { 
@@ -79,10 +81,25 @@ async function translateText(text: string, retries = 3): Promise<string> {
         }
       })
       return result.text
-    } catch (error) {
+    } catch (error: any) {
+      const errorMessage = error?.message || String(error)
+      
+      // Check if it's a rate limit error
+      if (errorMessage.includes('TooManyRequests') || errorMessage.includes('429')) {
+        console.warn(`Rate limit hit, attempt ${i + 1}/${retries}`)
+        
+        if (i === retries - 1) {
+          console.error('Translation failed after all retries due to rate limiting')
+          return text // Return original text if all retries fail
+        }
+        // Continue to next retry with longer delay
+        continue
+      }
+      
+      // For other errors, fail faster
       if (i === retries - 1) {
         console.error('Translation failed:', error)
-        return text // Return original text if translation fails
+        return text
       }
     }
   }
@@ -159,6 +176,8 @@ export async function POST(request: NextRequest) {
 
     // Generate subtitles with translation
     const subtitles: Subtitle[] = []
+    console.log(`Starting translation of ${segments.length} subtitles...`)
+
     for (let i = 0; i < segments.length; i++) {
       const segment = segments[i] as any
       const text = segment.snippet?.text || ''
@@ -168,8 +187,10 @@ export async function POST(request: NextRequest) {
       const startTime = Math.floor(startTimeMs / 1000)
       const endTime = Math.floor(endTimeMs / 1000)
       
-      // Translate with delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Add 1 second delay to respect rate limits (was 100ms)
+      // This ensures max ~1 request per second to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
       const textZh = await translateText(text)
 
       subtitles.push({
@@ -181,7 +202,14 @@ export async function POST(request: NextRequest) {
         textZh,
         order: i
       })
+      
+      // Log progress every 10 items
+      if ((i + 1) % 10 === 0 || i === segments.length - 1) {
+        console.log(`翻译进度: ${i + 1}/${segments.length} (${Math.round((i + 1) / segments.length * 100)}%)`)
+      }
     }
+
+    console.log(`Translation completed: ${subtitles.length} subtitles`)
 
     // Use video duration from API or calculate from last segment
     const lastSegment = segments[segments.length - 1] as any
@@ -274,4 +302,31 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+// Batch translation helper (for future optimization)
+// This function can translate multiple subtitles at once to reduce API calls
+async function translateBatch(texts: string[], batchSize = 3): Promise<string[]> {
+  const results: string[] = []
+  
+  for (let i = 0; i < texts.length; i += batchSize) {
+    const batch = texts.slice(i, i + batchSize)
+    const combined = batch.join('\n###SEPARATOR###\n')
+    
+    // Translate combined text
+    const translated = await translateText(combined)
+    
+    // Split back into individual translations
+    const splitResults = translated.split('\n###SEPARATOR###\n')
+    
+    // Pad with original text if split fails
+    for (let j = 0; j < batch.length; j++) {
+      results.push(splitResults[j] || batch[j])
+    }
+    
+    // Wait longer between batches
+    await new Promise(resolve => setTimeout(resolve, 2000))
+  }
+  
+  return results
 }
