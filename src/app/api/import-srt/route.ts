@@ -147,38 +147,91 @@ function parseSRT(content: string): Array<{ startTime: number; endTime: number; 
 function parseYouTubeTranscript(content: string): Array<{ startTime: number; endTime: number; text: string }> {
   const subtitles: Array<{ startTime: number; endTime: number; text: string }> = []
   
-  // YouTube transcript format:
-  // 0:01 Text here
-  // 0:05 Another text
-  // 1:23 More text
+  // YouTube transcript format can be:
+  // Format 1 (same line):
+  //   0:01 Text here
+  //   0:05 Another text
+  //
+  // Format 2 (separate lines):
+  //   0:01
+  //   Text here
+  //   0:05
+  //   Another text
   
-  const lines = content.split('\n').filter(line => line.trim())
+  const lines = content.split('\n').map(line => line.trim()).filter(line => line)
   
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim()
-    
-    // Match timestamp at the beginning: 0:01, 1:23:45, etc.
-    const match = line.match(/^(\d{1,2}:\d{2}(?::\d{2})?)\s+(.+)$/)
-    
-    if (match) {
-      const timeStr = match[1]
-      const text = match[2].trim()
+  // First, try to detect which format is being used
+  let sameLineFormat = false
+  for (const line of lines) {
+    // Check if line starts with timestamp followed by space and text
+    if (/^\d{1,2}:\d{2}(?::\d{2})?\s+.+$/.test(line)) {
+      sameLineFormat = true
+      break
+    }
+  }
+  
+  if (sameLineFormat) {
+    // Format 1: timestamp and text on same line
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const match = line.match(/^(\d{1,2}:\d{2}(?::\d{2})?)\s+(.+)$/)
       
-      const startTime = parseTimeToSeconds(timeStr)
-      
-      // End time is the start of the next line, or start + 5 seconds if it's the last line
-      let endTime = startTime + 5
-      
-      if (i < lines.length - 1) {
-        const nextLine = lines[i + 1].trim()
-        const nextMatch = nextLine.match(/^(\d{1,2}:\d{2}(?::\d{2})?)\s+/)
+      if (match) {
+        const timeStr = match[1]
+        const text = match[2].trim()
+        const startTime = parseTimeToSeconds(timeStr)
         
-        if (nextMatch) {
-          endTime = parseTimeToSeconds(nextMatch[1])
+        // End time is the start of the next subtitle, or start + 5 seconds
+        let endTime = startTime + 5
+        if (i < lines.length - 1) {
+          const nextMatch = lines[i + 1].match(/^(\d{1,2}:\d{2}(?::\d{2})?)\s/)
+          if (nextMatch) {
+            endTime = parseTimeToSeconds(nextMatch[1])
+          }
         }
+        
+        subtitles.push({ startTime, endTime, text })
       }
+    }
+  } else {
+    // Format 2: timestamp and text on separate lines
+    let i = 0
+    while (i < lines.length) {
+      const line = lines[i]
       
-      subtitles.push({ startTime, endTime, text })
+      // Check if this line is a timestamp (only timestamp, no text after)
+      if (/^\d{1,2}:\d{2}(?::\d{2})?$/.test(line)) {
+        const timeStr = line
+        const startTime = parseTimeToSeconds(timeStr)
+        
+        // Collect all text lines until the next timestamp
+        const textLines: string[] = []
+        i++
+        
+        while (i < lines.length && !/^\d{1,2}:\d{2}(?::\d{2})?$/.test(lines[i])) {
+          textLines.push(lines[i])
+          i++
+        }
+        
+        const text = textLines.join(' ').trim()
+        
+        if (text) {
+          // End time is the start of the next subtitle, or start + 5 seconds
+          let endTime = startTime + 5
+          
+          if (i < lines.length) {
+            const nextTimeStr = lines[i]
+            if (/^\d{1,2}:\d{2}(?::\d{2})?$/.test(nextTimeStr)) {
+              endTime = parseTimeToSeconds(nextTimeStr)
+            }
+          }
+          
+          subtitles.push({ startTime, endTime, text })
+        }
+      } else {
+        // Skip lines that don't match either format
+        i++
+      }
     }
   }
   
@@ -187,13 +240,27 @@ function parseYouTubeTranscript(content: string): Array<{ startTime: number; end
 
 // Detect format and parse
 function parseSubtitles(content: string): Array<{ startTime: number; endTime: number; text: string }> {
+  console.log('Parsing subtitle content, length:', content.length)
+  console.log('First 200 characters:', content.substring(0, 200))
+  
   // Check if it's SRT format (contains -->)
   if (content.includes('-->')) {
-    return parseSRT(content)
+    console.log('Detected SRT format')
+    const result = parseSRT(content)
+    console.log(`Parsed ${result.length} SRT subtitles`)
+    return result
   }
   
   // Otherwise, try YouTube transcript format
-  return parseYouTubeTranscript(content)
+  console.log('Attempting YouTube transcript format')
+  const result = parseYouTubeTranscript(content)
+  console.log(`Parsed ${result.length} YouTube transcript subtitles`)
+  
+  if (result.length === 0) {
+    console.error('Failed to parse any subtitles. Content preview:', content.substring(0, 500))
+  }
+  
+  return result
 }
 
 // Translate text with retry logic
