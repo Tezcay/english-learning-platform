@@ -1,15 +1,19 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import ReactPlayer from 'react-player/youtube'
+import dynamic from 'next/dynamic'
 import { usePlayerStore } from '@/store/usePlayerStore'
+
+const ReactPlayer = dynamic(() => import('react-player/youtube'), {
+  ssr: false,
+})
 
 interface VideoPlayerProps {
   youtubeId: string
 }
 
 export function VideoPlayer({ youtubeId }: VideoPlayerProps) {
-  const playerRef = useRef<ReactPlayer>(null)
+  const playerRef = useRef<any>(null)
   const [isSeeking, setIsSeeking] = useState(false)
   const { 
     playing, 
