@@ -18,10 +18,13 @@ export function CourseCard({ lesson }: CourseCardProps) {
               alt={lesson.title}
               fill
               className="object-cover"
-              unoptimized
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
+            <div 
+              className="w-full h-full flex items-center justify-center"
+              aria-label="Video placeholder"
+              role="img"
+            >
               <PlayCircle className="w-16 h-16 text-gray-400" />
             </div>
           )}
