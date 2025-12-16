@@ -24,6 +24,7 @@
     "tailwind-merge": "^2.2.0",
     "undici": "^7.16.0",
     "youtube-transcript": "^1.2.1",
+    "youtubei.js": "^10.0.0",
     "zustand": "^4.4.7"
   },
   "devDependencies": {
