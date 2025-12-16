@@ -12,6 +12,13 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Externalize undici for server-side code to avoid webpack bundling issues
+      config.externals.push('undici')
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig

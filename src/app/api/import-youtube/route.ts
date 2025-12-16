@@ -97,6 +97,53 @@ async function translateText(text: string, retries = 3): Promise<string> {
 
 export async function POST(request: NextRequest) {
   try {
+    // Configure proxy for network requests
+    // This is essential for users in regions where YouTube is blocked (e.g., China)
+    const proxyUrl = process.env.HTTP_PROXY || 
+                     process.env.HTTPS_PROXY || 
+                     process.env.http_proxy || 
+                     process.env.https_proxy
+
+    // Common Clash/V2Ray default ports
+    const defaultProxies = [
+      'http://127.0.0.1:7890',  // Clash default
+      'http://127.0.0.1:7897',  // Clash mixed port
+      'http://127.0.0.1:10809', // V2Ray default
+    ]
+
+    let proxyConfigured = false
+
+    // Try environment variable first
+    if (proxyUrl) {
+      try {
+        const { ProxyAgent, setGlobalDispatcher } = await import('undici')
+        setGlobalDispatcher(new ProxyAgent(proxyUrl))
+        console.log(`✅ Using proxy from environment: ${proxyUrl}`)
+        proxyConfigured = true
+      } catch (error) {
+        console.warn(`⚠️ Failed to configure proxy from environment: ${proxyUrl}`)
+      }
+    }
+
+    // If no environment proxy, try common default ports
+    if (!proxyConfigured) {
+      for (const proxy of defaultProxies) {
+        try {
+          const { ProxyAgent, setGlobalDispatcher } = await import('undici')
+          setGlobalDispatcher(new ProxyAgent(proxy))
+          console.log(`✅ Using default proxy: ${proxy}`)
+          proxyConfigured = true
+          break
+        } catch (error) {
+          console.log(`⏭️ Skipping proxy ${proxy}`)
+        }
+      }
+    }
+
+    if (!proxyConfigured) {
+      console.warn('⚠️ No proxy configured. YouTube access may fail in restricted regions.')
+    }
+
     const { url } = await request.json()
 
     if (!url) {
@@ -273,8 +320,28 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Import error:', error)
+    
+    // Check if it's a network error
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const isNetworkError = errorMessage.includes('timeout') || 
+                           errorMessage.includes('ECONNREFUSED') ||
+                           errorMessage.includes('fetch failed')
+    
+    if (isNetworkError) {
+      return NextResponse.json(
+        { 
+          error: '网络连接失败。如果您在中国大陆，请确保：\n' +
+                 '1. Clash/V2Ray 代理正在运行\n' +
+                 '2. 代理端口为 7890/7897/10809\n' +
+                 '3. 或设置环境变量 HTTP_PROXY\n\n' +
+                 '详细错误：' + errorMessage 
+        },
+        { status: 500 }
+      )
+    }
+    
     return NextResponse.json(
-      { error: '导入失败，请重试' },
+      { error: '导入失败，请重试。错误：' + errorMessage },
       { status: 500 }
     )
   }
