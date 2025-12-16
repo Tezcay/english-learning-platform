@@ -2,13 +2,21 @@ export interface Lesson {
   id: string;
   title: string;
   youtubeId: string;
-  bloggerName: string;
-  difficulty: number;
-  durationMinutes: number;
+  bloggerName?: string;
+  difficulty?: number;
+  durationMinutes?: number;
+  description?: string;
+  duration?: number;
+  level?: 'beginner' | 'intermediate' | 'advanced';
   tags: string[];
   thumbnailUrl?: string;
-  createdAt: Date;
+  thumbnail?: string;
+  createdAt?: Date;
   subtitles?: Subtitle[];
+}
+
+export interface LessonIndex {
+  lessons: Omit<Lesson, 'subtitles'>[]
 }
 
 export interface Subtitle {

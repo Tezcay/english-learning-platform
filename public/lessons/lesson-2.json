@@ -1,0 +1,21 @@
+{
+  "id": "2",
+  "title": "商务英语 | 会议沟通技巧",
+  "description": "学习专业的商务会议英语表达",
+  "youtubeId": "dQw4w9WgXcQ",
+  "duration": 240,
+  "level": "advanced",
+  "tags": ["business", "meeting", "professional"],
+  "subtitles": [
+    {
+      "id": "1",
+      "lessonId": "2",
+      "startTime": 0,
+      "endTime": 4,
+      "textEn": "Good morning everyone, let's get started with today's meeting.",
+      "textZh": "大家早上好，让我们开始今天的会议。",
+      "textIpa": "ɡʊd ˈmɔːrnɪŋ ˈɛvriwʌn, lɛts ɡɛt ˈstɑːrtɪd wɪð təˈdeɪz ˈmiːtɪŋ.",
+      "order": 0
+    }
+  ]
+}

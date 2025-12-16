@@ -1,0 +1,41 @@
+{
+  "id": "1",
+  "title": "纽约日常 Vlog | 咖啡店工作日常",
+  "description": "跟随 Vlogger 体验纽约咖啡店的一天，学习日常英语对话",
+  "youtubeId": "jfKfPfyJRdk",
+  "duration": 180,
+  "level": "intermediate",
+  "tags": ["daily life", "vlog", "coffee shop"],
+  "subtitles": [
+    {
+      "id": "1",
+      "lessonId": "1",
+      "startTime": 0,
+      "endTime": 3,
+      "textEn": "Hey guys, welcome back to my channel!",
+      "textZh": "嘿大家好，欢迎回到我的频道！",
+      "textIpa": "heɪ gaɪz, ˈwɛlkəm bæk tuː maɪ ˈtʃænl!",
+      "order": 0
+    },
+    {
+      "id": "2",
+      "lessonId": "1",
+      "startTime": 3,
+      "endTime": 7,
+      "textEn": "Today I'm going to show you my morning routine.",
+      "textZh": "今天我要给你们展示我的晨间例行事项。",
+      "textIpa": "təˈdeɪ aɪm ˈɡoʊɪŋ tuː ʃoʊ juː maɪ ˈmɔːrnɪŋ ruːˈtiːn.",
+      "order": 1
+    },
+    {
+      "id": "3",
+      "lessonId": "1",
+      "startTime": 7,
+      "endTime": 11,
+      "textEn": "First thing I do is make myself a cup of coffee.",
+      "textZh": "我做的第一件事就是给自己冲一杯咖啡。",
+      "textIpa": "fɜːrst θɪŋ aɪ duː ɪz meɪk maɪˈsɛlf ə kʌp ʌv ˈkɑːfi.",
+      "order": 2
+    }
+  ]
+}
