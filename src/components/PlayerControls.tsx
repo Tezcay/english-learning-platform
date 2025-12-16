@@ -39,7 +39,7 @@ export function PlayerControls() {
           <span className="text-sm text-muted-foreground">播放模式:</span>
           <button
             onClick={() =>
-              setPlaybackMode(playbackMode === 'normal' ? 'sentence-pause' : 'normal')
+              setPlaybackMode(playbackMode === 'sentence-pause' ? 'normal' : 'sentence-pause')
             }
             className={`px-3 py-1 rounded text-sm ${
               playbackMode === 'sentence-pause'
@@ -51,7 +51,7 @@ export function PlayerControls() {
           </button>
           <button
             onClick={() =>
-              setPlaybackMode(playbackMode === 'normal' ? 'sentence-loop' : 'normal')
+              setPlaybackMode(playbackMode === 'sentence-loop' ? 'normal' : 'sentence-loop')
             }
             className={`px-3 py-1 rounded text-sm flex items-center gap-1 ${
               playbackMode === 'sentence-loop'

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ReactPlayer from 'react-player/youtube'
 import { usePlayerStore } from '@/store/usePlayerStore'
 
@@ -10,6 +10,7 @@ interface VideoPlayerProps {
 
 export function VideoPlayer({ youtubeId }: VideoPlayerProps) {
   const playerRef = useRef<ReactPlayer>(null)
+  const [isSeeking, setIsSeeking] = useState(false)
   const { 
     playing, 
     playbackRate, 
@@ -20,7 +21,9 @@ export function VideoPlayer({ youtubeId }: VideoPlayerProps) {
   } = usePlayerStore()
 
   const handleProgress = (state: { played: number; playedSeconds: number }) => {
-    setCurrentTime(state.playedSeconds)
+    if (!isSeeking) {
+      setCurrentTime(state.playedSeconds)
+    }
   }
 
   const handleDuration = (duration: number) => {
@@ -29,8 +32,10 @@ export function VideoPlayer({ youtubeId }: VideoPlayerProps) {
 
   // 外部控制播放位置
   useEffect(() => {
-    if (playerRef.current) {
+    if (playerRef.current && Math.abs(playerRef.current.getCurrentTime() - currentTime) > 1) {
+      setIsSeeking(true)
       playerRef.current.seekTo(currentTime, 'seconds')
+      setTimeout(() => setIsSeeking(false), 100)
     }
   }, [currentTime])
 
