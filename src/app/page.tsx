@@ -1,42 +1,54 @@
-import { CourseCard } from '@/components/CourseCard'
-import { Lesson } from '@/types'
+'use client'
 
-const mockLessons: Lesson[] = [
-  {
-    id: '1',
-    title: '纽约日常 Vlog | 咖啡店工作日常',
-    youtubeId: 'dQw4w9WgXcQ',
-    bloggerName: 'Emma Wilson',
-    difficulty: 3,
-    durationMinutes: 20,
-    tags: ['日常', '咖啡', '纽约'],
-    createdAt: new Date(),
-  },
-  {
-    id: '2',
-    title: '健身房晨练 | 我的健身routine',
-    youtubeId: 'dQw4w9WgXcQ',
-    bloggerName: 'Tom Dickinson',
-    difficulty: 2,
-    durationMinutes: 15,
-    tags: ['健身', '运动', '日常'],
-    createdAt: new Date(),
-  },
-]
+import { CourseCard } from '@/components/CourseCard'
+import { useEffect, useState } from 'react'
+import { getAllLessons } from '@/lib/lessons'
+import type { Lesson } from '@/types'
 
 export default function Home() {
+  const [lessons, setLessons] = useState<Omit<Lesson, 'subtitles'>[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    getAllLessons()
+      .then(setLessons)
+      .catch((err) => {
+        console.error(err)
+        setError('加载课程列表失败，请刷新页面重试')
+      })
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return (
+      <main className="container mx-auto px-4 py-8">
+        <div className="text-center">加载中...</div>
+      </main>
+    )
+  }
+
+  if (error) {
+    return (
+      <main className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-500">{error}</div>
+      </main>
+    )
+  }
+
   return (
     <main className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">真实语料英语学习平台</h1>
-        <p className="text-muted-foreground text-lg">
-          200+ YouTube vlog 真实语料，通过影子跟读提升口语和听力
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-bold mb-2">英语口语学习平台</h1>
+        <p className="text-muted-foreground mb-8">
+          通过真实的 YouTube 视频学习地道英语表达
         </p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockLessons.map((lesson) => (
-          <CourseCard key={lesson.id} lesson={lesson} />
-        ))}
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {lessons.map((lesson) => (
+            <CourseCard key={lesson.id} lesson={lesson} />
+          ))}
+        </div>
       </div>
     </main>
   )

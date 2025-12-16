@@ -2,13 +2,21 @@ export interface Lesson {
   id: string;
   title: string;
   youtubeId: string;
-  bloggerName: string;
-  difficulty: number;
-  durationMinutes: number;
+  bloggerName?: string;
+  difficulty?: number;
+  durationMinutes?: number; // Legacy field - prefer using 'duration' in seconds
+  description?: string;
+  duration?: number; // Duration in seconds - standardized format
+  level?: 'beginner' | 'intermediate' | 'advanced';
   tags: string[];
-  thumbnailUrl?: string;
-  createdAt: Date;
+  thumbnailUrl?: string; // Legacy field - prefer using 'thumbnail'
+  thumbnail?: string; // Thumbnail image URL
+  createdAt?: Date;
   subtitles?: Subtitle[];
+}
+
+export interface LessonIndex {
+  lessons: Omit<Lesson, 'subtitles'>[]
 }
 
 export interface Subtitle {

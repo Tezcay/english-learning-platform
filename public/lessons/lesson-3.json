@@ -1,0 +1,31 @@
+{
+  "id": "3",
+  "title": "旅行英语 | 机场对话",
+  "description": "学习机场常用英语对话和实用表达",
+  "youtubeId": "example3",
+  "duration": 300,
+  "level": "beginner",
+  "tags": ["travel", "airport", "conversation"],
+  "subtitles": [
+    {
+      "id": "1",
+      "lessonId": "3",
+      "startTime": 0,
+      "endTime": 4,
+      "textEn": "Excuse me, where is the check-in counter?",
+      "textZh": "请问，值机柜台在哪里？",
+      "textIpa": "ɪkˈskjuːz miː, weər ɪz ðə tʃek-ɪn ˈkaʊntər?",
+      "order": 0
+    },
+    {
+      "id": "2",
+      "lessonId": "3",
+      "startTime": 4,
+      "endTime": 7,
+      "textEn": "It's right over there, next to gate 5.",
+      "textZh": "就在那边，5号登机口旁边。",
+      "textIpa": "ɪts raɪt ˈoʊvər ðer, nekst tuː ɡeɪt faɪv.",
+      "order": 1
+    }
+  ]
+}
