@@ -7,7 +7,11 @@
       "thumbnail": "/thumbnails/lesson-1.jpg",
       "duration": 180,
       "level": "intermediate",
-      "tags": ["daily life", "vlog", "coffee shop"]
+      "tags": [
+        "daily life",
+        "vlog",
+        "coffee shop"
+      ]
     },
     {
       "id": "2",
@@ -16,7 +20,11 @@
       "thumbnail": "/thumbnails/lesson-2.jpg",
       "duration": 240,
       "level": "advanced",
-      "tags": ["business", "meeting", "professional"]
+      "tags": [
+        "business",
+        "meeting",
+        "professional"
+      ]
     },
     {
       "id": "3",
@@ -25,7 +33,11 @@
       "thumbnail": "/thumbnails/lesson-3.jpg",
       "duration": 300,
       "level": "beginner",
-      "tags": ["travel", "airport", "conversation"]
+      "tags": [
+        "travel",
+        "airport",
+        "conversation"
+      ]
     }
   ]
 }
