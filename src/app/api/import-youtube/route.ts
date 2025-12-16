@@ -115,18 +115,41 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Fetch transcript
-    let transcriptItems: TranscriptItem[]
-    try {
-      transcriptItems = await YoutubeTranscript.fetchTranscript(videoId, {
-        lang: 'en'
-      })
-    } catch (error) {
-      console.error('Failed to fetch transcript:', error)
-      return NextResponse.json(
-        { error: '无法获取字幕。请确保视频有英文字幕' },
-        { status: 404 }
-      )
+    // Fetch transcript - try multiple language variants
+    let transcriptItems: TranscriptItem[] = []
+    const languageCodes = ['en', 'en-US', 'en-GB', 'en-CA', 'en-AU']
+
+    // First, try specific English language codes
+    for (const lang of languageCodes) {
+      try {
+        console.log(`Attempting to fetch transcript with lang: ${lang}`)
+        transcriptItems = await YoutubeTranscript.fetchTranscript(videoId, {
+          lang: lang
+        })
+        console.log(`Successfully fetched transcript with lang: ${lang}`)
+        break // Success - exit loop
+      } catch (error) {
+        console.log(`Failed to fetch with lang ${lang}, trying next...`)
+        continue
+      }
+    }
+
+    // If all specific language attempts failed, try without language specification
+    // This will get auto-generated or default subtitles
+    if (transcriptItems.length === 0) {
+      try {
+        console.log('Attempting to fetch transcript without language specification')
+        transcriptItems = await YoutubeTranscript.fetchTranscript(videoId)
+        console.log('Successfully fetched transcript without language specification')
+      } catch (error) {
+        console.error('All transcript fetch attempts failed:', error)
+        return NextResponse.json(
+          { 
+            error: '无法获取字幕。可能原因：\n1. 视频没有英文字幕\n2. 视频已被删除或设为私密\n3. 字幕被禁用\n\n请尝试其他有英文字幕的视频。' 
+          },
+          { status: 404 }
+        )
+      }
     }
 
     if (!transcriptItems || transcriptItems.length === 0) {
@@ -134,6 +157,15 @@ export async function POST(request: NextRequest) {
         { error: '该视频没有可用的英文字幕' },
         { status: 404 }
       )
+    }
+
+    // Validate that we got English content
+    if (transcriptItems.length > 0) {
+      const sampleText = transcriptItems[0].text
+      // Basic check - English text should contain common English characters
+      if (!/[a-zA-Z]/.test(sampleText)) {
+        console.warn('Warning: Fetched subtitles may not be in English')
+      }
     }
 
     // Generate subtitles with translation
