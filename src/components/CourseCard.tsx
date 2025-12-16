@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Lesson } from '@/types'
-import { Star } from 'lucide-react'
+import { Star, PlayCircle } from 'lucide-react'
 
 interface CourseCardProps {
   lesson: Lesson
@@ -11,13 +11,23 @@ export function CourseCard({ lesson }: CourseCardProps) {
   return (
     <Link href={`/lesson/${lesson.id}`}>
       <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-card">
-        <div className="relative w-full h-48">
-          <Image
-            src={lesson.thumbnailUrl || '/placeholder.jpg'}
-            alt={lesson.title}
-            fill
-            className="object-cover"
-          />
+        <div className="relative w-full h-48 bg-gradient-to-br from-blue-100 to-purple-100">
+          {lesson.thumbnailUrl ? (
+            <Image
+              src={lesson.thumbnailUrl}
+              alt={lesson.title}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div 
+              className="w-full h-full flex items-center justify-center"
+              aria-label="Video placeholder"
+              role="img"
+            >
+              <PlayCircle className="w-16 h-16 text-gray-400" />
+            </div>
+          )}
         </div>
         <div className="p-4">
           <h3 className="font-bold text-lg mb-2 line-clamp-2">{lesson.title}</h3>

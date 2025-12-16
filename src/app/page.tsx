@@ -10,7 +10,6 @@ const mockLessons: Lesson[] = [
     difficulty: 3,
     durationMinutes: 20,
     tags: ['日常', '咖啡', '纽约'],
-    thumbnailUrl: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
     createdAt: new Date(),
   },
   {
@@ -21,7 +20,6 @@ const mockLessons: Lesson[] = [
     difficulty: 2,
     durationMinutes: 15,
     tags: ['健身', '运动', '日常'],
-    thumbnailUrl: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
     createdAt: new Date(),
   },
 ]
