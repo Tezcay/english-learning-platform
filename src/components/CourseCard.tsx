@@ -1,0 +1,55 @@
+import Link from 'next/link'
+import Image from 'next/image'
+import { Lesson } from '@/types'
+import { Star } from 'lucide-react'
+
+interface CourseCardProps {
+  lesson: Lesson
+}
+
+export function CourseCard({ lesson }: CourseCardProps) {
+  return (
+    <Link href={`/lesson/${lesson.id}`}>
+      <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-card">
+        <div className="relative w-full h-48">
+          <Image
+            src={lesson.thumbnailUrl || '/placeholder.jpg'}
+            alt={lesson.title}
+            fill
+            className="object-cover"
+          />
+        </div>
+        <div className="p-4">
+          <h3 className="font-bold text-lg mb-2 line-clamp-2">{lesson.title}</h3>
+          <p className="text-sm text-muted-foreground mb-3">@{lesson.bloggerName}</p>
+          
+          <div className="flex items-center gap-1 mb-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`w-4 h-4 ${
+                  i < lesson.difficulty ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                }`}
+              />
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-2 mb-3">
+            {lesson.tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          <p className="text-sm text-muted-foreground">
+            建议学习时长: {lesson.durationMinutes} 分钟
+          </p>
+        </div>
+      </div>
+    </Link>
+  )
+}
