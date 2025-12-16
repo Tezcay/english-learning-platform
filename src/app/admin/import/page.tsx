@@ -14,6 +14,7 @@ interface ImportResult {
   title?: string
   subtitleCount?: number
   duration?: number
+  translated?: boolean
   error?: string
 }
 
@@ -32,6 +33,7 @@ export default function ImportPage() {
   const [manualUrl, setManualUrl] = useState('')
   const [manualTitle, setManualTitle] = useState('')
   const [subtitleContent, setSubtitleContent] = useState('')
+  const [skipTranslation, setSkipTranslation] = useState(false)
   const [manualStatus, setManualStatus] = useState<ImportStatus>('idle')
   const [manualResult, setManualResult] = useState<ImportResult | null>(null)
   const [manualProgress, setManualProgress] = useState('')
@@ -126,7 +128,8 @@ export default function ImportPage() {
         body: JSON.stringify({ 
           url: manualUrl,
           title: manualTitle,
-          subtitleContent 
+          subtitleContent,
+          skipTranslation
         }),
       })
 
@@ -355,6 +358,20 @@ export default function ImportPage() {
                     </p>
                   </div>
 
+                  <div className="flex items-center space-x-2 mt-4">
+                    <input
+                      type="checkbox"
+                      id="skip-translation"
+                      checked={skipTranslation}
+                      onChange={(e) => setSkipTranslation(e.target.checked)}
+                      className="w-4 h-4"
+                      disabled={manualStatus !== 'idle'}
+                    />
+                    <label htmlFor="skip-translation" className="text-sm">
+                      跳过翻译（仅导入英文字幕，适合翻译 API 限流时使用）
+                    </label>
+                  </div>
+
                   <Button
                     onClick={handleManualImport}
                     disabled={manualStatus !== 'idle' && manualStatus !== 'error' && manualStatus !== 'success'}
@@ -402,6 +419,11 @@ export default function ImportPage() {
                           <p><strong>标题:</strong> {manualResult.title}</p>
                           <p><strong>字幕数量:</strong> {manualResult.subtitleCount} 条</p>
                           <p><strong>时长:</strong> {Math.floor((manualResult.duration || 0) / 60)} 分钟</p>
+                          {!manualResult.translated && (
+                            <p className="text-yellow-600">
+                              ⚠️ 注意：此课程仅包含英文字幕，未进行翻译
+                            </p>
+                          )}
                           <div className="mt-4">
                             <Link
                               href={`/lesson/${manualResult.lessonId}`}

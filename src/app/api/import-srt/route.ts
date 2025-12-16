@@ -309,7 +309,7 @@ async function translateText(text: string, retries = 3): Promise<string> {
 
 export async function POST(request: NextRequest) {
   try {
-    const { url, title, subtitleContent } = await request.json()
+    const { url, title, subtitleContent, skipTranslation } = await request.json()
 
     if (!url || !title || !subtitleContent) {
       return NextResponse.json(
@@ -328,6 +328,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`Parsing subtitles for video: ${videoId}`)
+    console.log(`Skip translation: ${skipTranslation ? 'YES' : 'NO'}`)
 
     // Parse subtitles
     const parsedSubtitles = parseSubtitles(subtitleContent)
@@ -339,36 +340,65 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate subtitles with translation
+    console.log(`Parsed ${parsedSubtitles.length} subtitles`)
+
+    // Generate subtitles with or without translation
     const subtitles: Subtitle[] = []
-    console.log(`Starting translation of ${parsedSubtitles.length} subtitles...`)
-
-    for (let i = 0; i < parsedSubtitles.length; i++) {
-      const item = parsedSubtitles[i]
+    
+    if (skipTranslation) {
+      // Skip translation - use English text for both
+      console.log('⏭️  Skipping translation, using English text only...')
       
-      // Add 1 second delay to respect rate limits (was 100ms)
-      // This ensures max ~1 request per second to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      const textZh = await translateText(item.text)
-
-      subtitles.push({
-        id: `${videoId}-${i + 1}`,
-        lessonId: videoId,
-        startTime: item.startTime,
-        endTime: item.endTime,
-        textEn: item.text,
-        textZh,
-        order: i
-      })
-      
-      // Log progress every 10 items
-      if ((i + 1) % 10 === 0 || i === parsedSubtitles.length - 1) {
-        console.log(`翻译进度: ${i + 1}/${parsedSubtitles.length} (${Math.round((i + 1) / parsedSubtitles.length * 100)}%)`)
+      for (let i = 0; i < parsedSubtitles.length; i++) {
+        const item = parsedSubtitles[i]
+        
+        subtitles.push({
+          id: `${videoId}-${i + 1}`,
+          lessonId: videoId,
+          startTime: item.startTime,
+          endTime: item.endTime,
+          textEn: item.text,
+          textZh: item.text,  // Use English text as placeholder
+          order: i
+        })
+        
+        // Log progress every 50 items
+        if ((i + 1) % 50 === 0 || i === parsedSubtitles.length - 1) {
+          console.log(`处理进度: ${i + 1}/${parsedSubtitles.length}`)
+        }
       }
-    }
+      
+      console.log('✅ Subtitles imported without translation')
+    } else {
+      // Translate subtitles (existing logic)
+      console.log(`Starting translation of ${parsedSubtitles.length} subtitles...`)
+      
+      for (let i = 0; i < parsedSubtitles.length; i++) {
+        const item = parsedSubtitles[i]
+        
+        // Add 1 second delay to respect rate limits
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        const textZh = await translateText(item.text)
 
-    console.log(`Translation completed: ${subtitles.length} subtitles`)
+        subtitles.push({
+          id: `${videoId}-${i + 1}`,
+          lessonId: videoId,
+          startTime: item.startTime,
+          endTime: item.endTime,
+          textEn: item.text,
+          textZh,
+          order: i
+        })
+        
+        // Log progress every 10 items
+        if ((i + 1) % 10 === 0 || i === parsedSubtitles.length - 1) {
+          console.log(`翻译进度: ${i + 1}/${parsedSubtitles.length} (${Math.round((i + 1) / parsedSubtitles.length * 100)}%)`)
+        }
+      }
+      
+      console.log(`Translation completed: ${subtitles.length} subtitles`)
+    }
 
     // Calculate total duration from last subtitle
     const duration = parsedSubtitles[parsedSubtitles.length - 1].endTime
@@ -378,10 +408,14 @@ export async function POST(request: NextRequest) {
       id: videoId,
       title: title,
       youtubeId: videoId,
-      description: '从字幕文件导入的课程',
+      description: skipTranslation 
+        ? '从字幕文件导入的课程（未翻译）' 
+        : '从字幕文件导入的课程',
       duration,
       level: 'intermediate',
-      tags: ['imported', 'youtube', 'manual'],
+      tags: skipTranslation 
+        ? ['imported', 'youtube', 'manual', 'no-translation']
+        : ['imported', 'youtube', 'manual'],
       thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
       subtitles
     }
@@ -447,7 +481,8 @@ export async function POST(request: NextRequest) {
       lessonId: videoId,
       title: lesson.title,
       subtitleCount: subtitles.length,
-      duration
+      duration,
+      translated: !skipTranslation
     })
 
   } catch (error) {
