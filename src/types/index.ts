@@ -1,0 +1,72 @@
+export interface Lesson {
+  id: string;
+  title: string;
+  youtubeId: string;
+  bloggerName: string;
+  difficulty: number;
+  durationMinutes: number;
+  tags: string[];
+  thumbnailUrl?: string;
+  createdAt: Date;
+  subtitles?: Subtitle[];
+}
+
+export interface Subtitle {
+  id: string;
+  lessonId: string;
+  startTime: number;
+  endTime: number;
+  textEn: string;
+  textCn: string;
+  ipa?: string;
+  sequenceNumber: number;
+  knowledgePoints?: KnowledgePoint[];
+}
+
+export interface KnowledgePoint {
+  id: string;
+  subtitleId: string;
+  type: KnowledgePointType;
+  text: string;
+  definitionEn: string;
+  definitionCn: string;
+  pronunciation?: string;
+  difficulty?: string;
+  usageNotes?: string;
+  examples: Example[];
+}
+
+export type KnowledgePointType = 
+  | 'word' 
+  | 'phrase' 
+  | 'phrasal_verb' 
+  | 'collocation' 
+  | 'idiom' 
+  | 'discourse_marker';
+
+export interface Example {
+  en: string;
+  cn: string;
+}
+
+export type SubtitleDisplayMode = 
+  | 'bilingual' 
+  | 'english' 
+  | 'chinese' 
+  | 'ipa' 
+  | 'dictation';
+
+export type PlaybackMode = 
+  | 'normal' 
+  | 'single-pause' 
+  | 'single-loop';
+
+export interface PlayerState {
+  playing: boolean;
+  playbackRate: number;
+  currentTime: number;
+  duration: number;
+  displayMode: SubtitleDisplayMode;
+  playbackMode: PlaybackMode;
+  currentSubtitleIndex: number;
+}

@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lesson {
+  id              String     @id @default(cuid())
+  title           String
+  youtubeId       String
+  bloggerName     String
+  difficulty      Int        @default(1)
+  durationMinutes Int
+  tags            String[]
+  thumbnailUrl    String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  subtitles       Subtitle[]
+
+  @@map("lessons")
+}
+
+model Subtitle {
+  id             String           @id @default(cuid())
+  lessonId       String
+  startTime      Float
+  endTime        Float
+  textEn         String
+  textCn         String
+  ipa            String?
+  sequenceNumber Int
+  lesson         Lesson           @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  knowledgePoints KnowledgePoint[]
+
+  @@map("subtitles")
+  @@index([lessonId])
+}
+
+model KnowledgePoint {
+  id            String   @id @default(cuid())
+  subtitleId    String
+  type          String
+  text          String
+  definitionEn  String
+  definitionCn  String
+  pronunciation String?
+  difficulty    String?
+  usageNotes    String?
+  examples      Json
+  subtitle      Subtitle @relation(fields: [subtitleId], references: [id], onDelete: Cascade)
+
+  @@map("knowledge_points")
+  @@index([subtitleId])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  progress  LearningProgress[]
+
+  @@map("users")
+}
+
+model LearningProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  lessonId       String
+  lastPosition   Float    @default(0)
+  completed      Boolean  @default(false)
+  studyTimeMinutes Int    @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("learning_progress")
+}
