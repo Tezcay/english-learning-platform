@@ -11,27 +11,30 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@prisma/client": "^5.7.1",
+    "@vitalets/google-translate-api": "^9.2.1",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "https-proxy-agent": "^7.0.6",
+    "lucide-react": "^0.303.0",
     "next": "14.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@prisma/client": "^5.7.1",
     "react-player": "^2.13.0",
-    "zustand": "^4.4.7",
-    "clsx": "^2.0.0",
     "tailwind-merge": "^2.2.0",
-    "lucide-react": "^0.303.0",
-    "class-variance-authority": "^0.7.0"
+    "youtube-transcript": "^1.2.1",
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
     "@types/node": "^20.10.6",
     "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.32",
-    "tailwindcss": "^3.4.0",
-    "prisma": "^5.7.1",
     "eslint": "^8.56.0",
-    "eslint-config-next": "14.0.4"
+    "eslint-config-next": "14.0.4",
+    "postcss": "^8.4.32",
+    "prisma": "^5.7.1",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.3.3"
   }
 }
