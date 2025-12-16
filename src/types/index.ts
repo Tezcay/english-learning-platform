@@ -4,13 +4,13 @@ export interface Lesson {
   youtubeId: string;
   bloggerName?: string;
   difficulty?: number;
-  durationMinutes?: number;
+  durationMinutes?: number; // Legacy field - prefer using 'duration' in seconds
   description?: string;
-  duration?: number;
+  duration?: number; // Duration in seconds - standardized format
   level?: 'beginner' | 'intermediate' | 'advanced';
   tags: string[];
-  thumbnailUrl?: string;
-  thumbnail?: string;
+  thumbnailUrl?: string; // Legacy field - prefer using 'thumbnail'
+  thumbnail?: string; // Thumbnail image URL
   createdAt?: Date;
   subtitles?: Subtitle[];
 }

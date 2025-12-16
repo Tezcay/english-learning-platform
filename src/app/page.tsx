@@ -8,11 +8,15 @@ import type { Lesson } from '@/types'
 export default function Home() {
   const [lessons, setLessons] = useState<Omit<Lesson, 'subtitles'>[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     getAllLessons()
       .then(setLessons)
-      .catch(console.error)
+      .catch((err) => {
+        console.error(err)
+        setError('加载课程列表失败，请刷新页面重试')
+      })
       .finally(() => setLoading(false))
   }, [])
 
@@ -20,6 +24,14 @@ export default function Home() {
     return (
       <main className="container mx-auto px-4 py-8">
         <div className="text-center">加载中...</div>
+      </main>
+    )
+  }
+
+  if (error) {
+    return (
+      <main className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-500">{error}</div>
       </main>
     )
   }

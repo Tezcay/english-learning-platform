@@ -11,7 +11,13 @@ export async function getAllLessons(): Promise<Omit<Lesson, 'subtitles'>[]> {
 
 export async function getLessonById(id: string): Promise<Lesson | null> {
   try {
-    const response = await fetch(`/lessons/lesson-${id}.json`)
+    // Sanitize ID to prevent path traversal attacks
+    const sanitizedId = id.replace(/[^a-zA-Z0-9-]/g, '')
+    if (!sanitizedId) {
+      return null
+    }
+    
+    const response = await fetch(`/lessons/lesson-${sanitizedId}.json`)
     if (!response.ok) {
       return null
     }
