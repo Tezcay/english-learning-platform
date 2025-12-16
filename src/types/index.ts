@@ -17,9 +17,9 @@ export interface Subtitle {
   startTime: number;
   endTime: number;
   textEn: string;
-  textCn: string;
-  ipa?: string;
-  sequenceNumber: number;
+  textZh: string;
+  textIpa?: string;
+  order: number;
   knowledgePoints?: KnowledgePoint[];
 }
 
@@ -58,8 +58,8 @@ export type SubtitleDisplayMode =
 
 export type PlaybackMode = 
   | 'normal' 
-  | 'single-pause' 
-  | 'single-loop';
+  | 'sentence-pause' 
+  | 'sentence-loop';
 
 export interface PlayerState {
   playing: boolean;

@@ -1,8 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'English Learning Platform - 真实语料英语学习',
@@ -16,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body className={inter.className}>
+      <body className="font-sans">
         <header className="border-b">
           <div className="container mx-auto px-4 py-4">
             <h1 className="text-2xl font-bold">📚 English Learning Platform</h1>
